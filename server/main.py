@@ -2,7 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import os
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 from dotenv import load_dotenv
+from src.job.process import start_async
 from src.routes import router
 
 load_dotenv()
@@ -24,11 +27,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Incluir rutas
-# app.include_router(router, prefix="/api/solicitude", tags=["BPMN"])
+
+def job():
+    print("Job iniciando")
+    start_async()
+
 
 
 if __name__ == "__main__":
+    
+    executors = {
+        'default': {'type': 'threadpool', 'max_workers': 1 }
+    }
+
+    job_defaults = {
+        'coalesce': False,
+        'max_instances': 1
+    }
+    scheduler = BackgroundScheduler(executors=executors, job_defaults=job_defaults)
+    scheduler.add_job(job, IntervalTrigger(seconds=5), id="job")
+    
     port = int(os.getenv("PORT", 8000))
     uvicorn.run(
         "main:app",

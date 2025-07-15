@@ -1,5 +1,5 @@
 import { Request, Router, Response } from "express";
-import { DbFactory } from "./connection";
+import { DbFactory } from "../db/connection";
 
 const router = Router();
 /**
