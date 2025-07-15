@@ -1,0 +1,17 @@
+FROM postgres:15
+
+# Instalar dependencias necesarias para compilar pgmq
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    postgresql-server-dev-15 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clonar y compilar la extensión de pgmq para Postgres
+RUN cd /tmp && \
+    git clone https://github.com/pgmq/pgmq.git && \
+    cd pgmq/pgmq-extension && \
+    make && \
+    make install && \
+    rm -rf /tmp/pgmq
+ 

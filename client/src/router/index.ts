@@ -2,7 +2,6 @@ import { Request, Router, Response } from "express";
 import { DbFactory } from "./connection";
 
 const router = Router();
-
 /**
  * @swagger
  * /create:
@@ -38,7 +37,6 @@ router.post("/create", async (req: Request, res: Response) => {
     const queueName = process.env.QUEUE
     await db.connect();
     const client = db.getClient();
-  
     const query = `SELECT pgmq_send($1, $2);`;
     const resmq = await client.query(query, [queueName, JSON.stringify(data)]);
     console.log('Mensaje enviado con ID:', resmq.rows[0].pgmq_send);
