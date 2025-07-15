@@ -1,19 +1,15 @@
-import express, { Application } from "express";
-import dotenv from "dotenv"
+import app from './src/app';
+import dotenv from 'dotenv';
 
-dotenv.config()
+dotenv.config();
 
-const app: Application = express()
-const port: string | undefined = process.env.PORT
-
-app.get("/", (request, response) => { 
-    response.status(200).send("Hello World");
-  }); 
+const port: string | number = process.env.PORT || 3001;
 
 app.listen(port, () => {
-    console.log("Listening on Port " + port)
+  console.log(`Client listening on http://localhost:${port}`);
 }).on("error", (error) => {
-    throw new Error(error.message);
-  })
+  console.error('Error al iniciar el servidor:', error.message);
+  process.exit(1);
+});
 
 
