@@ -11,8 +11,15 @@ services:
       POSTGRES_DB: BPMN_db
     volumes:
       - db-bpmn-data:/var/lib/postgresql/data
+      - ./config:/docker-entrypoint-conf.d
     networks:
       - bpmn-network
+    command: >
+      bash -c "
+        chmod +x /docker-entrypoint-conf.d/01-install-pgmq.sh &&
+        /docker-entrypoint-conf.d/01-install-pgmq.sh &&
+        postgres -c shared_preload_libraries=pgmq -c pgmq.workers=2
+      "
 
   hasura-bpmn: 
        image: hasura/graphql-engine:latest
