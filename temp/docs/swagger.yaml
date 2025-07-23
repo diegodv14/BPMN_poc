@@ -1,0 +1,22 @@
+basePath: /
+host: localhost:8081
+info:
+  contact: {}
+  description: API de en Gin para probar Temporal
+  title: BPMN POC
+  version: "1.0"
+paths:
+  /workflow:
+    post:
+      description: Inicia un workflow
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Workflow iniciado
+          schema:
+            type: string
+      summary: Inicia un workflow
+      tags:
+      - workflow
+swagger: "2.0"

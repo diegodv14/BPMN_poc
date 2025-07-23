@@ -1,0 +1,33 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API de en Gin para probar Temporal",
+        "title": "BPMN POC",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8081",
+    "basePath": "/",
+    "paths": {
+        "/workflow": {
+            "post": {
+                "description": "Inicia un workflow",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workflow"
+                ],
+                "summary": "Inicia un workflow",
+                "responses": {
+                    "200": {
+                        "description": "Workflow iniciado",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
