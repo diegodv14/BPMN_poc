@@ -4,6 +4,8 @@
 -- Crear la extensión pgmq
 CREATE EXTENSION IF NOT EXISTS pgmq;
 
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 -- Crear la cola bpmn_queue
 SELECT pgmq.create('bpmn_queue');
 
@@ -11,7 +13,7 @@ CREATE TYPE request_status AS ENUM ('pending', 'approved', 'rejected');
 
 -- Crear la tabla request
 CREATE TABLE IF NOT EXISTS request (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     status request_status DEFAULT 'pending',

@@ -1,4 +1,3 @@
-import json
 from gql import gql
 from src.models.request import Request
 from src.db.connection import DbFactory
@@ -11,12 +10,15 @@ def start_async():
     client = db.get_client()
     
     with client.cursor() as cur:
-        cur.execute("SELECT msg_id, message FROM pgmq_read(%s, %s);", (os.getenv("QUEUE"), 10))
+        cur.execute(
+        "SELECT msg_id, message FROM pgmq.read(%s::TEXT, %s::INTEGER, %s::INTEGER);",
+        (os.getenv("QUEUE"), 30, 2)
+        )
         mensajes = cur.fetchall()
         
         for mensaje in mensajes:
             print(mensaje)
-            data = json.loads(mensaje[1])
+            data = mensaje[1]
             request = Request(**data)
             print(request)
             query = gql("""
@@ -34,14 +36,15 @@ def start_async():
                 }
             """)
             variables = {
-                "id": request.id,
                 "name": request.name,
-                "description": request.description,
-                "status": request.status,
-                "created_at": request.created_at,
-                "updated_at": request.updated_at
+                "description": request.description
             }
             response = graphql_client.execute(query, variables)
+            if response.get("insert_request"):
+                cur.execute(
+                    "SELECT pgmq.archive(%s::TEXT, %s::INTEGER);",
+                    (os.getenv("QUEUE"), mensaje[0])
+                )
             print(response)
             
             
