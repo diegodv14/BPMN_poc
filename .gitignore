@@ -32,6 +32,8 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+*.pyc
+__pycache__
 
 # Node.js
 node_modules/

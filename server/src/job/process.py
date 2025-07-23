@@ -1,6 +1,6 @@
 import json
 from gql import gql
-from server.src.models.request import Request
+from src.models.request import Request
 from src.db.connection import DbFactory
 import os
 from src.graphql.client import client as graphql_client

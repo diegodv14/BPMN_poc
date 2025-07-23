@@ -23,15 +23,21 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "API del cliente BPMN con Express",
     },
+    servers: [
+      {
+        url: "/api",
+      },
+    ],
   },
   apis: ["./src/router/*.ts"],
+  
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
 app.use("/api", router);
+
+app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(
   (

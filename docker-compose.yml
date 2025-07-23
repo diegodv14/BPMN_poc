@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: ./config/Dockerfile.postgres
+    # image: tembo/pgmq:latest
     ports:
       - 5432:5432
     environment:

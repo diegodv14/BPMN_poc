@@ -3,7 +3,7 @@ import { DbFactory } from "../db/connection";
 
 const router = Router();
 /**
- * @swagger
+ * @openapi
  * /create:
  *   post:
  *     summary: Create a new request that has to ve approved on the BPMD flow, It would be sent on a pg queue
@@ -33,14 +33,13 @@ const router = Router();
 router.post("/create", async (req: Request, res: Response) => {
   try {
     const data = req.body;
+    console.log("Data " +  JSON.stringify(data))
     const db = DbFactory.getInstance();
     const queueName = process.env.QUEUE
     await db.connect();
     const client = db.getClient();
-    const query = `SELECT pgmq_send($1, $2);`;
-    const resmq = await client.query(query, [queueName, JSON.stringify(data)]);
-    console.log('Mensaje enviado con ID:', resmq.rows[0].pgmq_send);
-  
+    const query = `SELECT * from pgmq.send($1, $2);`;
+    await client.query(query, [queueName, JSON.stringify(data)]);      
     res.status(201).send("Request created and sent")
   }
   catch (err: unknown) {
@@ -51,7 +50,6 @@ router.post("/create", async (req: Request, res: Response) => {
     }
     res.status(500).send("An error ocurred on the server")
   }
-  
 });
 
 export { router };
