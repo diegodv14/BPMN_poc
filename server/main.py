@@ -6,14 +6,16 @@ import os
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from dotenv import load_dotenv
-from src.job.process import start_async
+from src.job.process import JobProcess
 from src.routes import router
 
 load_dotenv()
 
-async def job():
+job_process = JobProcess()
+
+def job():
     print("Job iniciando")
-    await start_async()
+    job_process.start()
 
 executors = {
     'default': {'type': 'threadpool', 'max_workers': 1}
