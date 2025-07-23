@@ -11,9 +11,9 @@ from src.routes import router
 
 load_dotenv()
 
-def job():
+async def job():
     print("Job iniciando")
-    start_async()
+    await start_async()
 
 executors = {
     'default': {'type': 'threadpool', 'max_workers': 1}
