@@ -3,8 +3,9 @@ from src.models.request import Request
 from src.db.connection import DbFactory
 import os
 from src.graphql.client import client as graphql_client
+import aiohttp
 
-def start_async():
+async def start_async():
     db = DbFactory()
     db.connect()
     client = db.get_client()
@@ -40,11 +41,18 @@ def start_async():
                 "description": request.description
             }
             response = graphql_client.execute(query, variables)
-            if response.get("insert_request"):
+            if res := response.get("insert_request"):
                 cur.execute(
                     "SELECT pgmq.archive(%s::TEXT, %s::INTEGER);",
                     (os.getenv("QUEUE"), mensaje[0])
                 )
-            print(response)
+                async with aiohttp.ClientSession() as session:
+                    async with session.post((os.getenv("TEMPORAL_URL")), json=res) as response:
+                        response_data = await response.json()
+                        print(response_data)
+                client.close()        
+        
+            
+            
             
             
