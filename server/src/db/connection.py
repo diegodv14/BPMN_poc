@@ -23,7 +23,7 @@ class DbFactory:
         }
 
     def connect(self):
-        if not self.is_connected:
+        if not self.is_connected or self.client.closed:
             self.client = psycopg.connect(**self.config)
             self.is_connected = True
             print("Conectado a la base de datos PostgreSQL")

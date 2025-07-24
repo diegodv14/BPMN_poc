@@ -14,13 +14,13 @@ import (
 	"go.temporal.io/sdk/workflow"
 )
 
-type ProcessWorkflow struct{}
-
+// CallApiActivity es la actividad que realiza la llamada a la API REST.
 func CallApiActivity(ctx context.Context, request models.Request) (string, error) {
 	jsonData, err := json.Marshal(models.Whatsapp{
 		Number: os.Getenv("WHATSAPP_NUMBER"),
 		Text:   "Hola " + request.Name + " dice " + request.Description,
 	})
+
 	logger := activity.GetLogger(ctx)
 
 	if err != nil {
@@ -35,7 +35,7 @@ func CallApiActivity(ctx context.Context, request models.Request) (string, error
 		return "", err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("apikey", os.Getenv("WHATSAPP_APIKEY"))
+	req.Header.Set("apikey", "change-me")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -50,11 +50,11 @@ func CallApiActivity(ctx context.Context, request models.Request) (string, error
 		return "", fmt.Errorf("la API devolvió un estado no esperado: %d", resp.StatusCode)
 	}
 
-	logger.Info("Llamada a Evolution API realizada con éxito.", "StatusCode", resp.StatusCode)
-	return "Llamada a Evolution API exitosa", nil
+	logger.Info("Llamada a Evolution API realizada con éxito.", "StatusCode", resp.StatusCode, "Mensaje", string(jsonData))
+	return "Llamada a la API exitosa", nil
 }
 
-func (p *ProcessWorkflow) ProcessWorkflow(ctx workflow.Context, request models.Request) (string, error) {
+func ProcessWorkflow(ctx workflow.Context, request models.Request) (string, error) {
 	ao := workflow.ActivityOptions{
 		StartToCloseTimeout: 10 * time.Second,
 	}

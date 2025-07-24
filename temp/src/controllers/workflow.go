@@ -12,6 +12,12 @@ import (
 	sdkclient "go.temporal.io/sdk/client"
 )
 
+type WorkflowInput struct {
+	InsertRequest struct {
+		Returning []models.Request `json:"returning"`
+	} `json:"insert_request"`
+}
+
 // GetWorkflow godoc
 // @Summary Inicia un workflow
 // @Description Inicia un workflow de Temporal para procesar la solicitud
@@ -24,26 +30,33 @@ import (
 // @Failure 500 {object} map[string]string "Error interno del servidor"
 // @Router /workflow [post]
 func GetWorkflow(c *gin.Context) {
-	var request models.Request
+	var input WorkflowInput
 
-	if err := c.ShouldBindJSON(&request); err != nil {
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(400, gin.H{"error": "JSON inválido"})
 		return
 	}
+
+	if len(input.InsertRequest.Returning) == 0 {
+		c.JSON(400, gin.H{"error": "El campo 'returning' está vacío o no existe"})
+		return
+	}
+
+	request := input.InsertRequest.Returning[0]
+
 	temporalClient, err := client.GetTemporalClient()
 	if err != nil {
-		log.Fatalln("No se pudo crear el cliente de Temporal", err)
+		log.Fatalln("No se pudo crear el cliente de Temporal, puede que no este corriendo el temporal", err)
 		c.JSON(500, gin.H{"error": "Error interno al conectar con Temporal"})
 		return
 	}
-	defer temporalClient.Close()
 
 	workflowOptions := sdkclient.StartWorkflowOptions{
 		ID:        "process_workflow_" + uuid.New().String(),
 		TaskQueue: "PROCESS_TASK_QUEUE",
 	}
 
-	wfRun, err := temporalClient.ExecuteWorkflow(context.Background(), workflowOptions, (*flow.ProcessWorkflow).ProcessWorkflow, request)
+	wfRun, err := temporalClient.ExecuteWorkflow(context.Background(), workflowOptions, flow.ProcessWorkflow, request)
 	if err != nil {
 		log.Println("No se pudo iniciar el workflow", err)
 		c.JSON(500, gin.H{"error": "No se pudo iniciar el workflow"})

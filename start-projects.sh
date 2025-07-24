@@ -9,5 +9,3 @@
 # INICIAR EL TEMPORAL
 (cd temp && go run main.go) &
 
-
-

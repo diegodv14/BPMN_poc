@@ -7,11 +7,16 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from dotenv import load_dotenv
 from src.job.process import JobProcess
+from src.db.connection import DbFactory
 from src.routes import router
 
 load_dotenv()
 
-job_process = JobProcess()
+db = DbFactory()
+db.connect()
+client = db.get_client()
+
+job_process = JobProcess(client=client)
 
 def job():
     print("Job iniciando")
