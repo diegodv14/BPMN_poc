@@ -9,12 +9,19 @@ services:
     ports:
       - 5432:5432
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: BPMN_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=BPMN_db
     volumes:
       - db-bpmn-data:/var/lib/postgresql/data
       - ./config:/docker-entrypoint-initdb.d
+    networks:
+      - bpmn-network
+   
+  redis-bpmn:
+    image: redis:latest
+    ports:
+      - 6379:6379
     networks:
       - bpmn-network
 
@@ -25,11 +32,33 @@ services:
       depends_on:
         - db-bpmn
       environment:
-        HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgres@db-bpmn:5432/BPMN_db
-        HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
-        HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+        - HASURA_GRAPHQL_DATABASE_URL=postgres://postgres:postgres@db-bpmn:5432/BPMN_db
+        - HASURA_GRAPHQL_ENABLE_TELEMETRY=false
+        - HASURA_GRAPHQL_ENABLE_CONSOLE=true
       networks:
       - bpmn-network 
+
+  evolution-api:
+      container_name: evolution_api
+      image: atendai/evolution-api:v2.1.1
+      restart: always
+      depends_on:
+        - db-bpmn
+        - redis-bpmn
+      ports:
+        - "8084:8080"
+      environment:
+        - AUTHENTICATION_API_KEY=change-me
+        - DATABASE_ENABLED=true
+        - DATABASE_PROVIDER=postgresql
+        - DATABASE_CONNECTION_URI=postgresql://postgres:postgres@db-bpmn:5432/evolution
+        - CACHE_REDIS_ENABLED=true
+        - CACHE_REDIS_PREFIX_KEY=evolution
+        - CACHE_REDIS_URI=redis://redis-bpmn:6379
+      volumes:
+        - evolution_instances:/evolution/instances
+      networks:
+        - bpmn-network
 
 networks:
   bpmn-network:
@@ -37,6 +66,7 @@ networks:
 
 volumes:
   db-bpmn-data:
+  evolution_instances:
 
 
   

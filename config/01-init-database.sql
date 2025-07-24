@@ -6,6 +6,8 @@ CREATE EXTENSION IF NOT EXISTS pgmq;
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+CREATE DATABASE IF NOT EXISTS evolution;
+
 -- Crear la cola bpmn_queue
 SELECT pgmq.create('bpmn_queue');
 
